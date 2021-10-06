@@ -8,13 +8,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
-
 var url = require('url');
-var fl = 'http://localhost:3000/forbidden?secret=true';
-var fullLink = url.parse(fl, true);
-
-let accessStatus = fullLink.query.secret;
-console.log(accessStatus);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,10 +23,16 @@ app.use(function(req, res, next){
 });
 
 app.use(function(req, res, next){
-  if(req.url == '/forbidden?secret=' + accessStatus){
+  let fullLink = url.parse(req.url, true);
+  let accessStatus = fullLink.query.secret;
+  console.log(accessStatus);
+
+  if(accessStatus === 'true'){
     res.end('Access approved');
-  }else if(req.url == '/forbidden?secret=' + !accessStatus){
+  }else if(accessStatus === 'false'){
     res.end('Access denied');
+  }else{
+    next();
   }
 })
 
